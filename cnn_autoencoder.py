@@ -11,6 +11,8 @@ class CNNAutoencoder(object):
         self.learning_rate = learning_rate
         self.name = name if name else 'CNNAutoencoder'
 
+        self.n_classes=10
+
         self.step = 0
 
     def build_graph(self):
@@ -36,12 +38,16 @@ class CNNAutoencoder(object):
         print(self.x)
         self.x = tf.layers.max_pooling2d(self.x, pool_size=(2, 2), strides=(2, 2), padding='SAME', name='%s_pool2' % self.name)
         print(self.x)
-        self.x = tf.layers.conv2d(self.x, filters=8, kernel_size=(3, 3), activation=tf.nn.relu, padding='SAME', name='%s_conv3' % self.name)
+        self.x = tf.layers.conv2d(self.x, filters=1, kernel_size=(3, 3), activation=tf.nn.relu, padding='SAME', name='%s_conv3' % self.name)
         print(self.x)
-        self.encoded = tf.layers.max_pooling2d(self.x, pool_size=(2, 2), strides=(2, 2), padding='SAME', name='%s_encoded' % self.name)
-        print("decoder")
+        self.x=tf.layers.flatten(self.x)
+        print(self.x)
+        self.encoded= tf.layers.dense(self.x, 10, activation=tf.nn.sigmoid)
+        #self.encoded = tf.layers.max_pooling2d(self.x, pool_size=(2, 2), strides=(2, 2), padding='SAME', name='%s_encoded' % self.name)
+        self.x=tf.layers.dense(self.encoded,18*18,activation=tf.nn.relu)
+        self.x=tf.reshape(self.x,[-1,18,18,1])
         # Decoder
-        self.x = tf.layers.conv2d(self.encoded, filters=8, kernel_size=(3, 3), activation=tf.nn.relu, padding='SAME', name='%s_conv4' % self.name)
+        self.x = tf.layers.conv2d(self.x, filters=1, kernel_size=(3, 3), activation=tf.nn.relu, padding='SAME', name='%s_conv4' % self.name)
         print(self.x)
         self.x = tf.layers.conv2d_transpose(self.x, filters=8, kernel_size=(2, 2), strides=(2, 2), name='%s_deconv4' % self.name)
         print(self.x)
